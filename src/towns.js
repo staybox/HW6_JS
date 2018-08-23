@@ -30,6 +30,7 @@
  */
 const homeworkContainer = document.querySelector('#homework-container');
 
+let towns;
 
 /*
  Функция должна вернуть Promise, который должен быть разрешен с массивом городов в качестве значения
@@ -43,21 +44,24 @@ function loadTowns() {
         xhr.open('GET','https://raw.githubusercontent.com/smelukov/citiesTest/master/cities.json');
         xhr.responseType = 'json';
         xhr.addEventListener('load', () =>{
-            let towns = xhr.response.sort(function (a, b) {
-                if (a.name > b.name) {
-                    return 1;
-                }
-                if (a.name < b.name) {
-                    return -1;
-                }
-                return 0;
-            });
-            resolve(towns);
+            if(xhr.status >= 400){
+                    reject();
+            }else {
+                let towns = xhr.response.sort(function (a, b) {
+                    if (a.name > b.name) {
+                        return 1;
+                    }
+                    if (a.name < b.name) {
+                        return -1;
+                    }
+                    return 0;
+                });
+                resolve(towns);
+            }
         });
         xhr.addEventListener('error', () => {
-           reject();
+            reject();
         });
-
         xhr.send();
     })
 }
@@ -88,7 +92,7 @@ const filterResult = homeworkContainer.querySelector('#filter-result');
 
 loadTowns()
     .then((response) => {
-        window.towns = response;
+        towns = response;
         loadingBlock.style.display = "none"; filterBlock.style.display = "block"})
     .catch(() => {
         loadingBlock.innerHTML = 'Загрузка не удалась';
@@ -106,11 +110,65 @@ loadTowns()
 
 filterInput.addEventListener('keyup', function() {
     // это обработчик нажатия кливиш в текстовом поле
+    let input = filterInput.value;
 
-
+    for(let i of towns){
+            if(isMatching(i.name, input)){
+                filterResult.innerHTML = i.name;
+            }
+        }
+    if(input === ''){
+            filterResult.innerHTML = '';
+        }
 });
 
 export {
     loadTowns,
     isMatching
 };
+
+
+
+
+
+
+
+
+
+
+/*
+function loadTowns() {
+        let xhr = new XMLHttpRequest();
+        xhr.open('GET', 'https://raw.githubusercontent.com/smelukov/citiesTest/master/cities.json');
+        xhr.responseType = 'json';
+        xhr.addEventListener('load', () => {
+            let towns = xhr.response.sort(function (a, b) {
+                if (a.name > b.name) {
+                    return 1;
+                }
+                if (a.name < b.name) {
+                    return -1;
+                }
+                return 0;
+            });
+        });
+    xhr.send();
+}*/
+
+// Рабочий код
+/*
+filterResult.innerHTML = '';
+if (input !== ''){
+    for(let i of towns){
+        if(isMatching(i.name, input)){
+            filterResult.innerHTML = i.name;
+        }
+    }
+}else {
+    for(let i of towns){
+        let div = document.createElement("div");
+        //div.value = i.name;
+        div.innerText = i.name;
+        filterResult.appendChild(div);
+    }
+}*/
