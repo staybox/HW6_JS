@@ -30,6 +30,7 @@
  */
 const homeworkContainer = document.querySelector('#homework-container');
 
+
 /*
  Функция должна вернуть Promise, который должен быть разрешен с массивом городов в качестве значения
 
@@ -37,6 +38,28 @@ const homeworkContainer = document.querySelector('#homework-container');
  https://raw.githubusercontent.com/smelukov/citiesTest/master/cities.json
  */
 function loadTowns() {
+    return new Promise(function (resolve, reject) {
+        let xhr = new XMLHttpRequest();
+        xhr.open('GET','https://raw.githubusercontent.com/smelukov/citiesTest/master/cities.json');
+        xhr.responseType = 'json';
+        xhr.addEventListener('load', () =>{
+            let towns = xhr.response.sort(function (a, b) {
+                if (a.name > b.name) {
+                    return 1;
+                }
+                if (a.name < b.name) {
+                    return -1;
+                }
+                return 0;
+            });
+            resolve(towns);
+        });
+        xhr.addEventListener('error', () => {
+           reject();
+        });
+
+        xhr.send();
+    })
 }
 
 /*
@@ -51,6 +74,7 @@ function loadTowns() {
    isMatching('Moscow', 'Moscov') // false
  */
 function isMatching(full, chunk) {
+    return full.toLowerCase().indexOf(chunk.toLowerCase()) > -1;
 }
 
 /* Блок с надписью "Загрузка" */
@@ -62,8 +86,28 @@ const filterInput = homeworkContainer.querySelector('#filter-input');
 /* Блок с результатами поиска */
 const filterResult = homeworkContainer.querySelector('#filter-result');
 
+loadTowns()
+    .then((response) => {
+        window.towns = response;
+        loadingBlock.style.display = "none"; filterBlock.style.display = "block"})
+    .catch(() => {
+        loadingBlock.innerHTML = 'Загрузка не удалась';
+        let button = document.createElement("BUTTON");
+        let br = document.createElement("br");
+        button.textContent = 'Повторить загрузку';
+        loadingBlock.appendChild(br);
+        loadingBlock.appendChild(button);
+        button.addEventListener('click',()=>{
+            loadTowns();
+        });
+    });
+
+
+
 filterInput.addEventListener('keyup', function() {
     // это обработчик нажатия кливиш в текстовом поле
+
+
 });
 
 export {
