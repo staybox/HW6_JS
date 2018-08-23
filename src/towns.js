@@ -32,6 +32,7 @@ const homeworkContainer = document.querySelector('#homework-container');
 
 let towns;
 
+
 /*
  Функция должна вернуть Promise, который должен быть разрешен с массивом городов в качестве значения
 
@@ -66,6 +67,24 @@ function loadTowns() {
     })
 }
 
+function initTownsLoading() {
+    loadTowns()
+        .then((response) => {
+            towns = response;
+            loadingBlock.style.display = "none"; filterBlock.style.display = "block"})
+        .catch(() => {
+            loadingBlock.innerHTML = 'Загрузка не удалась';
+            let button = document.createElement("BUTTON");
+            let br = document.createElement("br");
+            button.textContent = 'Повторить загрузку';
+            loadingBlock.appendChild(br);
+            loadingBlock.appendChild(button);
+            button.addEventListener('click',()=>{
+                initTownsLoading();
+            });
+        });
+}
+initTownsLoading();
 /*
  Функция должна проверять встречается ли подстрока chunk в строке full
  Проверка должна происходить без учета регистра символов
@@ -90,27 +109,13 @@ const filterInput = homeworkContainer.querySelector('#filter-input');
 /* Блок с результатами поиска */
 const filterResult = homeworkContainer.querySelector('#filter-result');
 
-loadTowns()
-    .then((response) => {
-        towns = response;
-        loadingBlock.style.display = "none"; filterBlock.style.display = "block"})
-    .catch(() => {
-        loadingBlock.innerHTML = 'Загрузка не удалась';
-        let button = document.createElement("BUTTON");
-        let br = document.createElement("br");
-        button.textContent = 'Повторить загрузку';
-        loadingBlock.appendChild(br);
-        loadingBlock.appendChild(button);
-        button.addEventListener('click',()=>{
-            initTownsLoading();
-        });
-    });
-
 
 
 filterInput.addEventListener('keyup', function() {
     // это обработчик нажатия кливиш в текстовом поле
     let input = filterInput.value;
+
+    filterResult.innerHTML = '';
 
     for(let i of towns){
             if(isMatching(i.name, input)){
@@ -131,23 +136,6 @@ export {
 
 
 
-function initTownsLoading() {
-    loadTowns()
-        .then((response) => {
-            towns = response;
-            loadingBlock.style.display = "none"; filterBlock.style.display = "block"})
-        .catch(() => {
-            loadingBlock.innerHTML = 'Загрузка не удалась';
-            let button = document.createElement("BUTTON");
-            let br = document.createElement("br");
-            button.textContent = 'Повторить загрузку';
-            loadingBlock.appendChild(br);
-            loadingBlock.appendChild(button);
-            button.addEventListener('click',()=>{
-                initTownsLoading();
-            });
-        });
-}
 
 
 
