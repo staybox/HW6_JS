@@ -102,7 +102,7 @@ loadTowns()
         loadingBlock.appendChild(br);
         loadingBlock.appendChild(button);
         button.addEventListener('click',()=>{
-            loadTowns();
+            initTownsLoading();
         });
     });
 
@@ -114,12 +114,14 @@ filterInput.addEventListener('keyup', function() {
 
     for(let i of towns){
             if(isMatching(i.name, input)){
-                filterResult.innerHTML = i.name;
+                filterResult.innerHTML += `<div>${i.name}</div>`;
             }
         }
-    if(input === ''){
+
+        if(input === ''){
             filterResult.innerHTML = '';
         }
+
 });
 
 export {
@@ -129,7 +131,23 @@ export {
 
 
 
-
+function initTownsLoading() {
+    loadTowns()
+        .then((response) => {
+            towns = response;
+            loadingBlock.style.display = "none"; filterBlock.style.display = "block"})
+        .catch(() => {
+            loadingBlock.innerHTML = 'Загрузка не удалась';
+            let button = document.createElement("BUTTON");
+            let br = document.createElement("br");
+            button.textContent = 'Повторить загрузку';
+            loadingBlock.appendChild(br);
+            loadingBlock.appendChild(button);
+            button.addEventListener('click',()=>{
+                initTownsLoading();
+            });
+        });
+}
 
 
 
